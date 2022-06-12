@@ -3694,113 +3694,119 @@ void ObjectMgr::LoadItemTemplates()
         for (uint32 i = 0; i < dbc->RowCount(); ++i)
         {
             SDBCItemTemplate& row = dbc->GetRow<SDBCItemTemplate>(i);
-            auto itr = _itemTemplateStore.find(row.entry);
-            ItemTemplate* itemTemplate = itr != _itemTemplateStore.end()
-                ? &itr->second
-                : &(_itemTemplateStore[row.entry] = ItemTemplate());
+            ItemTemplate& itemTemplate = _itemTemplateStore[row.entry];
 
-            itemTemplate->ItemId = row.entry;
-            itemTemplate->Class = row.clazz;
-            itemTemplate->SubClass = row.subclass;
-            itemTemplate->SoundOverrideSubclass = row.SoundOverrideSubclass;
-            itemTemplate->Name1 = row.name.enGB.read(dbc);
-            itemTemplate->DisplayInfoID = row.displayid;
-            itemTemplate->Quality = row.Quality;
-            itemTemplate->Flags = row.Flags;
-            itemTemplate->Flags2 = row.FlagsExtra;
-            itemTemplate->BuyCount = row.BuyCount;
-            itemTemplate->BuyPrice = row.BuyPrice;
-            itemTemplate->SellPrice = row.SellPrice;
-            itemTemplate->ItemLevel = row.ItemLevel;
-            itemTemplate->RequiredLevel = row.RequiredLevel;
-            itemTemplate->RequiredSkill = row.RequiredSkill;
-            itemTemplate->RequiredSkillRank = row.RequiredSkillRank;
-            itemTemplate->RequiredSpell = row.requiredspell;
-            itemTemplate->RequiredHonorRank = row.requiredhonorrank;
-            itemTemplate->RequiredCityRank = row.RequiredCityRank;
-            itemTemplate->RequiredReputationFaction = row.RequiredReputationFaction;
-            itemTemplate->RequiredReputationRank = row.RequiredReputationRank;
-            itemTemplate->MaxCount = row.maxcount;
-            itemTemplate->Stackable = row.stackable;
-            itemTemplate->ContainerSlots = row.ContainerSlots;
-            itemTemplate->StatsCount = row.StatsCount;
+            itemTemplate.ItemId = row.entry;
+            itemTemplate.Class = row.clazz;
+            itemTemplate.SubClass = row.subclass;
+            itemTemplate.SoundOverrideSubclass = row.SoundOverrideSubclass;
+            itemTemplate.Name1 = row.name.enGB.read(dbc);
+            itemTemplate.DisplayInfoID = row.displayid;
+            itemTemplate.Quality = row.Quality;
+            itemTemplate.Flags = row.Flags;
+            itemTemplate.Flags2 = row.FlagsExtra;
+            itemTemplate.BuyCount = row.BuyCount;
+            itemTemplate.BuyPrice = row.BuyPrice;
+            itemTemplate.SellPrice = row.SellPrice;
+            itemTemplate.InventoryType = row.InventoryType;
+            itemTemplate.AllowableClass = row.AllowableClass;
+            itemTemplate.AllowableRace = row.AllowableRace;
+            itemTemplate.ItemLevel = row.ItemLevel;
+            itemTemplate.RequiredLevel = row.RequiredLevel;
+            itemTemplate.RequiredSkill = row.RequiredSkill;
+            itemTemplate.RequiredSkillRank = row.RequiredSkillRank;
+            itemTemplate.RequiredSpell = row.requiredspell;
+            itemTemplate.RequiredHonorRank = row.requiredhonorrank;
+            itemTemplate.RequiredCityRank = row.RequiredCityRank;
+            itemTemplate.RequiredReputationFaction = row.RequiredReputationFaction;
+            itemTemplate.RequiredReputationRank = row.RequiredReputationRank;
+            itemTemplate.MaxCount = row.maxcount;
+            itemTemplate.Stackable = row.stackable;
+            itemTemplate.ContainerSlots = row.ContainerSlots;
+            itemTemplate.StatsCount = row.StatsCount;
 
-            for (uint8 j = 0; j < std::min(itemTemplate->StatsCount, uint32(MAX_ITEM_PROTO_STATS)); ++j)
+            if (itemTemplate.StatsCount > MAX_ITEM_PROTO_STATS)
             {
-                itemTemplate->ItemStat[j].ItemStatType = row.Stats[j].stat_type;
-                itemTemplate->ItemStat[j].ItemStatValue = row.Stats[j].stat_value;
+                TC_LOG_ERROR("sql.sql", "Item (Entry: %u) has too large value in statscount (%u), replace by hardcoded limit (%u).", row.entry, itemTemplate.StatsCount, MAX_ITEM_PROTO_STATS);
+                itemTemplate.StatsCount = MAX_ITEM_PROTO_STATS;
             }
 
-            itemTemplate->ScalingStatDistribution = row.ScalingStatDistribution;
-            itemTemplate->ScalingStatValue = row.ScalingStatValue;
+            for (uint8 j = 0; j < std::min(itemTemplate.StatsCount, uint32(MAX_ITEM_PROTO_STATS)); ++j)
+            {
+                itemTemplate.ItemStat[j].ItemStatType = row.Stats[j].stat_type;
+                itemTemplate.ItemStat[j].ItemStatValue = row.Stats[j].stat_value;
+            }
+
+            itemTemplate.ScalingStatDistribution = row.ScalingStatDistribution;
+            itemTemplate.ScalingStatValue = row.ScalingStatValue;
 
             for (uint8 j = 0; j < MAX_ITEM_PROTO_DAMAGES; ++j)
             {
-                itemTemplate->Damage[j].DamageMin = row.Damage[j].min;
-                itemTemplate->Damage[j].DamageMax = row.Damage[j].max;
-                itemTemplate->Damage[j].DamageType = row.Damage[j].type;
+                itemTemplate.Damage[j].DamageMin = row.Damage[j].min;
+                itemTemplate.Damage[j].DamageMax = row.Damage[j].max;
+                itemTemplate.Damage[j].DamageType = row.Damage[j].type;
             }
 
-            itemTemplate->Armor = row.armor;
-            itemTemplate->HolyRes = row.holy_res;
-            itemTemplate->FireRes = row.fire_res;
-            itemTemplate->NatureRes = row.nature_res;
-            itemTemplate->FrostRes = row.frost_res;
-            itemTemplate->ShadowRes = row.shadow_res;
-            itemTemplate->ArcaneRes = row.arcane_res;
-            itemTemplate->Delay = row.delay;
-            itemTemplate->AmmoType = row.ammo_type;
-            itemTemplate->RangedModRange = row.RangedModRange;
+            itemTemplate.Armor = row.armor;
+            itemTemplate.HolyRes = row.holy_res;
+            itemTemplate.FireRes = row.fire_res;
+            itemTemplate.NatureRes = row.nature_res;
+            itemTemplate.FrostRes = row.frost_res;
+            itemTemplate.ShadowRes = row.shadow_res;
+            itemTemplate.ArcaneRes = row.arcane_res;
+            itemTemplate.Delay = row.delay;
+            itemTemplate.AmmoType = row.ammo_type;
+            itemTemplate.RangedModRange = row.RangedModRange;
 
             for (uint8 j = 0; j < MAX_ITEM_PROTO_SPELLS; ++j)
             {
-                itemTemplate->Spells[j].SpellId = row.Spells[j].spellid;
-                itemTemplate->Spells[j].SpellTrigger = row.Spells[j].spelltrigger;
-                itemTemplate->Spells[j].SpellCharges = row.Spells[j].spellcharges;
-                itemTemplate->Spells[j].SpellPPMRate = row.Spells[j].spellppmRate;
-                itemTemplate->Spells[j].SpellCooldown = row.Spells[j].spellcooldown;
-                itemTemplate->Spells[j].SpellCategory = row.Spells[j].spellcategory;
-                itemTemplate->Spells[j].SpellCategoryCooldown = row.Spells[j].spellcategorycooldown;
+                itemTemplate.Spells[j].SpellId = row.Spells[j].spellid;
+                itemTemplate.Spells[j].SpellTrigger = row.Spells[j].spelltrigger;
+                itemTemplate.Spells[j].SpellCharges = row.Spells[j].spellcharges;
+                itemTemplate.Spells[j].SpellPPMRate = row.Spells[j].spellppmRate;
+                itemTemplate.Spells[j].SpellCooldown = row.Spells[j].spellcooldown;
+                itemTemplate.Spells[j].SpellCategory = row.Spells[j].spellcategory;
+                itemTemplate.Spells[j].SpellCategoryCooldown = row.Spells[j].spellcategorycooldown;
             }
 
-            itemTemplate->Bonding = row.bonding;
-            itemTemplate->Description = row.description.enGB.read(dbc);
-            itemTemplate->PageText = row.PageText;
-            itemTemplate->LanguageID = row.LanguageID;
-            itemTemplate->PageMaterial = row.PageMaterial;
-            itemTemplate->StartQuest = row.startquest;
-            itemTemplate->LockID = row.lockid;
-            itemTemplate->Material = row.Material;
-            itemTemplate->Sheath = row.sheath;
-            itemTemplate->RandomProperty = row.RandomProperty;
-            itemTemplate->RandomSuffix = row.RandomSuffix;
-            itemTemplate->Block = row.block;
-            itemTemplate->ItemSet = row.itemset;
-            itemTemplate->MaxDurability = row.MaxDurability;
-            itemTemplate->Area = row.area;
-            itemTemplate->Map = row.Map;
-            itemTemplate->BagFamily = row.BagFamily;
-            itemTemplate->TotemCategory = row.TotemCategory;
+            itemTemplate.Bonding = row.bonding;
+            itemTemplate.Description = row.description.enGB.read(dbc);
+            itemTemplate.PageText = row.PageText;
+            itemTemplate.LanguageID = row.LanguageID;
+            itemTemplate.PageMaterial = row.PageMaterial;
+            itemTemplate.StartQuest = row.startquest;
+            itemTemplate.LockID = row.lockid;
+            itemTemplate.Material = row.Material;
+            itemTemplate.Sheath = row.sheath;
+            itemTemplate.RandomProperty = row.RandomProperty;
+            itemTemplate.RandomSuffix = row.RandomSuffix;
+            itemTemplate.Block = row.block;
+            itemTemplate.ItemSet = row.itemset;
+            itemTemplate.MaxDurability = row.MaxDurability;
+            itemTemplate.Area = row.area;
+            itemTemplate.Map = row.Map;
+            itemTemplate.BagFamily = row.BagFamily;
+            itemTemplate.TotemCategory = row.TotemCategory;
 
             for (uint8 j = 0; j < MAX_ITEM_PROTO_SOCKETS; ++j)
             {
-                itemTemplate->Socket[j].Color = row.Sockets[j].color;
-                itemTemplate->Socket[j].Content = row.Sockets[j].content;
+                itemTemplate.Socket[j].Color = row.Sockets[j].color;
+                itemTemplate.Socket[j].Content = row.Sockets[j].content;
             }
 
-            itemTemplate->socketBonus = row.socketBonus;
-            itemTemplate->GemProperties = row.GemProperties;
-            itemTemplate->RequiredDisenchantSkill = row.RequiredDisenchantSkill;
-            itemTemplate->ArmorDamageModifier = row.ArmorDamageModifier;
-            itemTemplate->Duration = row.duration;
-            itemTemplate->ItemLimitCategory = row.ItemLimitCategory;
-            itemTemplate->HolidayId = row.HolidayId;
-            itemTemplate->ScriptId = 0;
-            itemTemplate->DisenchantID = row.DisenchantID;
-            itemTemplate->FoodType = row.FoodType;
-            itemTemplate->MinMoneyLoot = row.minMoneyLoot;
-            itemTemplate->MaxMoneyLoot = row.maxMoneyLoot;
-            itemTemplate->FlagsCu = row.flagsCustom;
+            itemTemplate.socketBonus = row.socketBonus;
+            itemTemplate.GemProperties = row.GemProperties;
+            itemTemplate.RequiredDisenchantSkill = row.RequiredDisenchantSkill;
+            itemTemplate.ArmorDamageModifier = row.ArmorDamageModifier;
+            itemTemplate.Duration = row.duration;
+            itemTemplate.ItemLimitCategory = row.ItemLimitCategory;
+            itemTemplate.HolidayId = row.HolidayId;
+            itemTemplate.ScriptId = 0;
+            itemTemplate.DisenchantID = row.DisenchantID;
+            itemTemplate.FoodType = row.FoodType;
+            itemTemplate.MinMoneyLoot = row.minMoneyLoot;
+            itemTemplate.MaxMoneyLoot = row.maxMoneyLoot;
+            itemTemplate.FlagsCu = row.flagsCustom;
         }
     }
     else
