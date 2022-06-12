@@ -475,8 +475,8 @@ void ObjectMgr::LoadCreatureTemplates()
             creatureTemplate.Modelid2 = row.modelid2;
             creatureTemplate.Modelid3 = row.modelid3;
             creatureTemplate.Modelid4 = row.modelid4;
-            creatureTemplate.Name = row.name.enGB.read(dbc);
-            creatureTemplate.Title = row.subname.enGB.read(dbc);
+            creatureTemplate.Name = row.name.enUS.read(dbc);
+            creatureTemplate.Title = row.subname.enUS.read(dbc);
             creatureTemplate.IconName = row.IconName.read(dbc);
             creatureTemplate.GossipMenuId = row.gossip_menu_id;
             creatureTemplate.minlevel = row.minlevel;
@@ -3700,7 +3700,7 @@ void ObjectMgr::LoadItemTemplates()
             itemTemplate.Class = row.clazz;
             itemTemplate.SubClass = row.subclass;
             itemTemplate.SoundOverrideSubclass = row.SoundOverrideSubclass;
-            itemTemplate.Name1 = row.name.enGB.read(dbc);
+            itemTemplate.Name1 = row.name.enUS.read(dbc);
             itemTemplate.DisplayInfoID = row.displayid;
             itemTemplate.Quality = row.Quality;
             itemTemplate.Flags = row.Flags;
@@ -3770,7 +3770,7 @@ void ObjectMgr::LoadItemTemplates()
             }
 
             itemTemplate.Bonding = row.bonding;
-            itemTemplate.Description = row.description.enGB.read(dbc);
+            itemTemplate.Description = row.description.enUS.read(dbc);
             itemTemplate.PageText = row.PageText;
             itemTemplate.LanguageID = row.LanguageID;
             itemTemplate.PageMaterial = row.PageMaterial;
@@ -8899,9 +8899,9 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.entry = row.entry;
             got.type = row.type;
             got.displayId = row.displayId;
-            got.name = row.name.enGB.read(dbc);
+            got.name = row.name.enUS.read(dbc);
             got.IconName = row.IconName.read(dbc);
-            got.castBarCaption = row.castBarCaption.enGB.read(dbc);
+            got.castBarCaption = row.castBarCaption.enUS.read(dbc);
             got.unk1 = row.unk1.read(dbc);
             got.size = row.size;
             for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
