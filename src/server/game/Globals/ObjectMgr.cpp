@@ -11253,9 +11253,9 @@ void ObjectMgr::LoadBroadcastTexts()
             bct.EmoteDelay1 = row.EmoteDelay1;
             bct.EmoteDelay2 = row.EmoteDelay2;
             bct.EmoteDelay3 = row.EmoteDelay3;
+            bct.SoundEntriesID = row.SoundEntriesID;
             bct.EmotesID = row.EmotesID;
             bct.Flags = row.Flags;
-            bct.SoundEntriesID = row.SoundEntriesID;
             row.Text.write(dbc, bct.Text, true);
             row.Text1.write(dbc, bct.Text1, true);
             CheckBroadcastText(bct);
