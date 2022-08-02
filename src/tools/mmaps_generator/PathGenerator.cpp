@@ -24,7 +24,7 @@
 #include <boost/filesystem.hpp>
 #include <unordered_map>
  // @tswow-begin
-#include <cxxopts.h>
+#include <cxxopts.hpp>
 // @tswow-end
 
 using namespace MMAP;

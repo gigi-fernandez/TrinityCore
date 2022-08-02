@@ -22,7 +22,7 @@
 #include "Banner.h"
 
 // @tswow-begin
-#include <cxxopts.h>
+#include <cxxopts.hpp>
 
 std::string src;
 std::string dest;

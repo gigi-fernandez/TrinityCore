@@ -35,7 +35,7 @@
 #include <sys/stat.h>
 // @tswow-begin
 #include <set>
-#include <cxxopts.h>
+#include <cxxopts.hpp>
 // @tswow-end
 
 #ifdef _WIN32

@@ -36,7 +36,7 @@
 #include <boost/filesystem.hpp>
 
 // @tswow-begin
-#include <cxxopts.h>
+#include <cxxopts.hpp>
 // @tswow-end
 
 extern ArchiveSet gOpenArchives;
