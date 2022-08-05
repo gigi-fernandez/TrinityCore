@@ -203,6 +203,8 @@ add_subdirectory(src)
 # tswow-begin botting
 set(BT_BUILD_TESTS OFF)
 set(BT_SOL2 ON)
+set(behaviortree_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../misc/behavior-tree)
+get_filename_component(behaviortree_SOURCE_DIR ${behaviortree_SOURCE_DIR} ABSOLUTE)
 add_subdirectory(../../misc/behavior-tree behavior-tree)
 add_subdirectory(../../misc/bots bots)
 # tswow-end
