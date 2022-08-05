@@ -201,6 +201,9 @@ add_subdirectory(dep)
 add_subdirectory(src)
 
 # tswow-begin botting
+set(BT_BUILD_TESTS OFF)
+set(BT_SOL2 ON)
+add_subdirectory(../../misc/behavior-tree behavior-tree)
 add_subdirectory(../../misc/bots bots)
 # tswow-end
 
