@@ -22,6 +22,7 @@
 // @tswow-begin
 #include "TSLibLoader.h"
 #include "TSProfile.h"
+#include "BotAccountMgr.h"
 // @tswow-end
 #include "Common.h"
 #include "AppenderDB.h"
@@ -386,6 +387,8 @@ extern int main(int argc, char** argv)
 #else
     TC_LOG_INFO("server.worldserver", "Tracy: Disabled");
 #endif
+    InstallBotAccounts();
+
     // @tswow-end
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
