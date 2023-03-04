@@ -547,6 +547,7 @@ uint32 DatabaseWorkerPool<T>::PrepareCustomStatement(std::string const& sql)
         {
             connection->LockIfReady();
             connection->PrepareCustomStatement(m_curId, sql);
+            connection->Unlock();
         }
     }
 
