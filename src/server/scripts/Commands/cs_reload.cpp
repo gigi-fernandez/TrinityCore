@@ -22,19 +22,12 @@ Comment: All reload related commands
 Category: commandscripts
 EndScriptData */
 
-// @tswow-begin
-#include "TSLibLoader.h"
-#include "TSLua.h"
-#include "Config.h"
-// @tswow-end
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
-#include "Creature.h"
-#include "CreatureOutfit.h"
 #include "CreatureTextMgr.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
@@ -103,7 +96,6 @@ public:
             { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER,            true,  &HandleReloadCreatureQuestStarterCommand,       "" },
             { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS,           true,  &HandleReloadCreatureSummonGroupsCommand,       "" },
             { "creature_template",             rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,                true,  &HandleReloadCreatureTemplateCommand,           "" },
-            { "creature_template_outfits",     rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,                true,  &HandleReloadCreatureTemplateOutfitsCommand,    "" },
             { "disables",                      rbac::RBAC_PERM_COMMAND_RELOAD_DISABLES,                         true,  &HandleReloadDisablesCommand,                   "" },
             { "disenchant_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE,         true,  &HandleReloadLootTemplatesDisenchantCommand,    "" },
             { "event_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS,                    true,  &HandleReloadEventScriptsCommand,               "" },
@@ -174,11 +166,6 @@ public:
             { "vehicle_template",              rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE,                 true,  &HandleReloadVehicleTemplateCommand,            "" },
             { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY,                 true,  &HandleReloadVehicleAccessoryCommand,           "" },
             { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY,       true,  &HandleReloadVehicleTemplateAccessoryCommand,   "" },
-            // @tswow-begin
-            { "spell_autolearn",               rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_AUTOLEARN,                  true,  &HandleReloadSpellAutolearnCommand,             "" },
-            { "livescripts",                   rbac::RBAC_PERM_COMMAND_RELOAD_LIVESCRIPTS,                      true,  &HandleReloadLivescripts,                       "" },
-            { "lua",                           rbac::RBAC_PERM_COMMAND_RELOAD_LUA,                              true,  &HandleReloadLua,                               "" },
-            // @tswow-end
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -186,36 +173,6 @@ public:
         };
         return commandTable;
     }
-
-    // @tswow-begin
-    static bool HandleReloadLivescripts(ChatHandler* /*handler*/, char const* args)
-    {
-        LoadTSLibraries();
-        return true;
-    }
-
-    // todo: remove, use reload livescripts instead
-    static bool HandleReloadLua(ChatHandler* handler, char const* args)
-    {
-        if (sConfigMgr->GetBoolDefault("TSWoW.EnableLua", true))
-        {
-            LoadTSLibraries();
-            if (handler)
-            {
-                handler->SendGlobalGMSysMessage("All lua scripts reloaded.");
-            }
-            return true;
-        }
-        else
-        {
-            if (handler)
-            {
-                handler->SendGlobalGMSysMessage("Lua is disabled, please set \"TSWoW.EnableLua\" to true in your worldserver.conf.");
-            }
-            return false;
-        }
-    }
-    // @tswow-end
 
     //reload commands
     static bool HandleReloadGMTicketsCommand(ChatHandler* /*handler*/, char const* /*args*/)
@@ -246,7 +203,6 @@ public:
 
         HandleReloadCreatureMovementOverrideCommand(handler, "");
         HandleReloadCreatureSummonGroupsCommand(handler);
-        HandleReloadCreatureTemplateOutfitsCommand(handler, "");
 
         HandleReloadVehicleAccessoryCommand(handler, "");
         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
@@ -337,9 +293,6 @@ public:
         HandleReloadSpellThreatsCommand(handler, "a");
         HandleReloadSpellGroupStackRulesCommand(handler, "a");
         HandleReloadSpellPetAurasCommand(handler, "a");
-        // @tswow-begin
-        HandleReloadSpellAutolearnCommand(handler, "a");
-        // @tswow-end
         return true;
     }
 
@@ -502,24 +455,6 @@ public:
 
         sObjectMgr->InitializeQueriesData(QUERY_DATA_CREATURES);
         handler->SendGlobalGMSysMessage("Creature template reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadCreatureTemplateOutfitsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Loading Creature Outfits... (`creature_template_outfits`)");
-        sObjectMgr->LoadCreatureOutfits();
-        sMapMgr->DoForAllMaps([](Map* map)
-        {
-            for (auto e : map->GetCreatureBySpawnIdStore())
-            {
-                auto const & outfit = e.second->GetOutfit();
-                if (outfit && outfit->GetId())
-                    e.second->SetDisplayId(outfit->GetId());
-            }
-        });
-
-        handler->SendGlobalGMSysMessage("DB table `creature_template_outfits` reloaded.");
         return true;
     }
 
@@ -1250,17 +1185,6 @@ public:
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
         return true;
     }
-
-    // @tswow-begin
-    static bool HandleReloadSpellAutolearnCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Reloading spell_autolearn table...");
-        sObjectMgr->LoadSpellAutolearn();
-        handler->SendGlobalGMSysMessage("spell_autolearn reloaded.");
-        return true;
-    }
-    // @tswow-end
-
 
     static bool HandleReloadRBACCommand(ChatHandler* handler, char const* /*args*/)
     {

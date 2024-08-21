@@ -144,33 +144,25 @@ public:
             {
                 case DATA_BROODLORD_LASHLAYER:
                     if (GetBossState(DATA_VAELASTRAZ_THE_CORRUPT) != DONE)
-                        // @tswow-begin
-                        return _CheckRequiredBosses(bossId, player, false);
-                        // @tswow-end
+                        return false;
                     break;
                 case DATA_FIREMAW:
                 case DATA_EBONROC:
                 case DATA_FLAMEGOR:
                     if (GetBossState(DATA_BROODLORD_LASHLAYER) != DONE)
-                        // @tswow-begin
-                        return _CheckRequiredBosses(bossId, player, false);
-                        // @tswow-end
+                        return false;
                     break;
                 case DATA_CHROMAGGUS:
                     if (GetBossState(DATA_FIREMAW) != DONE
                         || GetBossState(DATA_EBONROC) != DONE
                         || GetBossState(DATA_FLAMEGOR) != DONE)
-                        // @tswow-begin
-                        return _CheckRequiredBosses(bossId, player, false);
-                        // @tswow-end
+                        return false;
                     break;
                 default:
                     break;
             }
 
-            // @tswow-begin
-            return _CheckRequiredBosses(bossId, player, true);
-            // @tswow-end
+            return true;
         }
 
         bool SetBossState(uint32 type, EncounterState state) override
@@ -284,9 +276,6 @@ public:
                         break;
                 }
             }
-            // @tswow-begin call super
-            InstanceScript::Update(diff);
-            // @tswow-end
         }
 
     protected:

@@ -482,14 +482,12 @@ public:
     //Enable Player mount
     static bool HandleModifyMountCommand(ChatHandler* handler, uint32 mount, float speed)
     {
-        /*
         if (!sCreatureDisplayInfoStore.LookupEntry(mount))
         {
             handler->SendSysMessage(LANG_NO_MOUNT);
             handler->SetSentErrorMessage(true);
             return false;
         }
-        */
 
         Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
