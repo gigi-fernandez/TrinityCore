@@ -15,21 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrinityCore_Regex_h__
-#define TrinityCore_Regex_h__
+#ifndef TRINITYCORE_TIMEZONE_H
+#define TRINITYCORE_TIMEZONE_H
 
-// std::wregex doesn't work with patterns provided in db2 files
-// so we have to use boost
-#include <boost/regex.hpp>
-#define TC_REGEX_NAMESPACE boost
+#include "Define.h"
+#include "Duration.h"
+#include <string>
 
-namespace Trinity
+namespace Trinity::Timezone
 {
-    using regex = TC_REGEX_NAMESPACE :: regex;
-    using wregex = TC_REGEX_NAMESPACE :: wregex;
+TC_COMMON_API Minutes GetOffsetByHash(uint32 hash);
 
-    using :: TC_REGEX_NAMESPACE :: regex_match;
-    using :: TC_REGEX_NAMESPACE :: regex_search;
+// Returns the time offset that must be added to UTC time to get localtime
+TC_COMMON_API Minutes GetSystemZoneOffsetAt(SystemTimePoint date);
+TC_COMMON_API Minutes GetSystemZoneOffset(bool applyDst = true);
+
+TC_COMMON_API std::string GetSystemZoneName();
+
+TC_COMMON_API std::string_view FindClosestClientSupportedTimezone(std::string_view currentTimezone, Minutes currentTimezoneOffset);
 }
 
-#endif // TrinityCore_Regex_h__
+#endif // TRINITYCORE_TIMEZONE_H
