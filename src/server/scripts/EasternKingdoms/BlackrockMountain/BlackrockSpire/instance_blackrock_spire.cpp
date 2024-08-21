@@ -268,7 +268,7 @@ public:
                     break;
             }
 
-             return true;
+            return true;
         }
 
         void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override

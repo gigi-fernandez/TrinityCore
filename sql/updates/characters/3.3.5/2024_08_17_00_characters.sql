@@ -1,2 +1,2 @@
--- TDB 335.23061 auth
+-- TDB 335.24081 characters
 UPDATE `updates` SET `state`='ARCHIVED';

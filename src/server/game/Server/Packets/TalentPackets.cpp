@@ -15,16 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef boost_1_73_process_windows_nopch_h__
-#define boost_1_73_process_windows_nopch_h__
+#include "TalentPackets.h"
 
-#include "CompilerDefs.h"
-#include <boost/version.hpp>
+namespace WorldPackets::Talents
+{
+WorldPacket const* RespecWipeConfirm::Write()
+{
+    _worldPacket << RespecMaster;
+    _worldPacket << uint32(Cost);
 
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS && BOOST_VERSION >= 107300 && BOOST_VERSION < 107800
-// __kernel_entry for boost/process/detail/windows/handle_workaround.hpp
-// DWORD for boost/process/detail/windows/handles.hpp
-#include <windows.h>
-#endif
+    return &_worldPacket;
+}
 
-#endif // boost_1_73_process_windows_nopch_h__
+void ConfirmRespecWipe::Read()
+{
+    _worldPacket >> RespecMaster;
+}
+
+WorldPacket const* InvoluntarilyReset::Write()
+{
+    _worldPacket << uint8(IsPetTalents);
+
+    return &_worldPacket;
+}
+}

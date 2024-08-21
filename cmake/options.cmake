@@ -60,6 +60,7 @@ set_property(CACHE WITH_SOURCE_TREE PROPERTY STRINGS no flat hierarchical hierar
 option(WITHOUT_GIT      "Disable the GIT testing routines"                            0)
 option(DISABLE_DRESSNPCS_CORESOUNDS "Disable server side 'missing sounds' workaround" 0)
 option(BUILD_TESTING    "Build test suite" 0)
+option(BUILD_TESTING    "Build test suite"                                            0)
 
 if(UNIX)
   option(USE_LD_GOLD    "Use GNU gold linker"                                         0)

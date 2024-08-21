@@ -63,7 +63,9 @@ public:
         static ChatCommandTable npcAddCommandTable =
         {
             { "formation",      HandleNpcAddFormationCommand,      rbac::RBAC_PERM_COMMAND_NPC_ADD_FORMATION,  Console::No },
+            // @tswow-begin (Using Rochet2/Multivendor)
             { "item",           HandleNpcAddVendorItemCommand,     rbac::RBAC_PERM_COMMAND_NPC_ADD_ITEM,       Console::No },
+            // @tswow-end
             { "move",           HandleNpcAddMoveCommand,           rbac::RBAC_PERM_COMMAND_NPC_ADD_MOVE,       Console::No },
             { "temp",           HandleNpcAddTempSpawnCommand,      rbac::RBAC_PERM_COMMAND_NPC_ADD_TEMP,       Console::No },
 //          { "weapon",         HandleNpcAddWeaponCommand,         rbac::RBAC_PERM_COMMAND_NPC_ADD_WEAPON,     Console::No },
@@ -161,12 +163,16 @@ public:
             return false;
         }
 
+        // @tswow-begin
+        handler->SendSysMessage("Warning: Created NPCs will be removed next datascript rebuild, use a datascript if you want persistent results.");
+        // @tswow-end
+
         sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
         return true;
     }
 
     //add item in vendorlist
-    static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, ItemTemplate const* item, Optional<uint32> mc, Optional<uint32> it, Optional<uint32> ec)
+    static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, ItemTemplate const* item, Optional<uint32> mc, Optional<uint32> it, Optional<uint32> ec, Optional<bool> addMulti)
     {
         if (!item)
         {
@@ -187,7 +193,9 @@ public:
         uint32 maxcount = mc.value_or(0);
         uint32 incrtime = it.value_or(0);
         uint32 extendedcost = ec.value_or(0);
-        uint32 vendor_entry = vendor->GetEntry();
+        // @tswow-begin (Using Rochet2/Multivendor)
+        uint32 vendor_entry = addMulti.value_or(false) ? handler->GetSession()->GetCurrentVendor() : vendor->GetEntry();
+        // @tswow-end
 
         if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, handler->GetSession()->GetPlayer()))
         {
@@ -195,7 +203,9 @@ public:
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
+        // @tswow-begin
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, 0 ,0);
+        // @tswow-end
 
         handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, item->Name1.c_str(), maxcount, incrtime, extendedcost);
         return true;
@@ -313,6 +323,9 @@ public:
         if (Creature::DeleteFromDB(spawnId))
         {
             handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
+            // @tswow-begin
+            handler->SendSysMessage("Warning: Removed NPCs will be restored next datascript rebuild, use a datascript if you want persistent results.");
+            // @tswow-end
             return true;
         }
         else
@@ -324,7 +337,9 @@ public:
     }
 
     //del item from vendor list
-    static bool HandleNpcDeleteVendorItemCommand(ChatHandler* handler, ItemTemplate const* item)
+    // @tswow-begin (Using Rochet2/Multivendor)
+    static bool HandleNpcDeleteVendorItemCommand(ChatHandler* handler, ItemTemplate const* item, Optional<bool> addMulti)
+    // @tswow-end
     {
         Creature* vendor = handler->getSelectedCreature();
         if (!vendor || !vendor->IsVendor())
@@ -342,7 +357,9 @@ public:
         }
 
         uint32 itemId = item->ItemId;
-        if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), itemId))
+        // @tswow-begin (Using Rochet2/Multivendor)
+        if (!sObjectMgr->RemoveVendorItem(addMulti.value_or(false) ? handler->GetSession()->GetCurrentVendor() : vendor->GetEntry(), itemId))
+        // @tswow-end
         {
             handler->PSendSysMessage(LANG_ITEM_NOT_IN_LIST, itemId);
             handler->SetSentErrorMessage(true);
@@ -651,12 +668,14 @@ public:
             return false;
         }
 
+        /*
         if (!sCreatureDisplayInfoStore.LookupEntry(displayId))
         {
             handler->PSendSysMessage(LANG_COMMAND_INVALID_PARAM, Trinity::ToString(displayId).c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
+        */
 
         creature->SetDisplayId(displayId);
         creature->SetNativeDisplayId(displayId);

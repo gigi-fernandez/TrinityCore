@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.36-0ubuntu0.22.04.1
+-- Server version	8.0.39-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -3234,6 +3234,20 @@ CREATE TABLE `spell_bonus_data` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `spell_custom_attr`
+--
+
+DROP TABLE IF EXISTS `spell_custom_attr`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `spell_custom_attr` (
+  `entry` int unsigned NOT NULL DEFAULT '0' COMMENT 'spell id',
+  `attributes` int unsigned NOT NULL DEFAULT '0' COMMENT 'SpellCustomAttributes',
+  PRIMARY KEY (`entry`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='SpellInfo custom attributes';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `spell_dbc`
 --
 
@@ -4053,4 +4067,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-04-10 16:07:07
+-- Dump completed on 2024-08-17 22:26:15
