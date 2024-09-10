@@ -212,7 +212,7 @@ public:
 
         void SetGuidData(uint32 type, ObjectGuid data) override
         {
-            TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetGuidData update (Type: %u Data %s)", type, data.ToString().c_str());
+            TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetGuidData update (Type: {} Data {})", type, data.ToString());
 
             switch (type)
             {
@@ -228,7 +228,7 @@ public:
 
         void SetData(uint32 type, uint32 data) override
         {
-            TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData update (Type: %u Data %u)", type, data);
+            TC_LOG_DEBUG("scripts", "Instance Blackrock Depths: SetData update (Type: {} Data {})", type, data);
 
             switch (type)
             {
@@ -372,7 +372,7 @@ public:
             FIRE_ID(
                 instance->GetEntry()->ID
                 , Instance,OnLoad
-                , TSInstance(instance,this)
+                , TSInstance(instance,this), false
             );
             // @tswow-end
             OUT_LOAD_INST_DATA_COMPLETE;

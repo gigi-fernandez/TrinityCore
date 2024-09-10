@@ -20,9 +20,12 @@
 #include "dbcfile.h"
 #include "StringFormat.h"
 #include "vmapexport.h"
+#include "Locales.h"
+#include "Util.h"
 #include "wdtfile.h"
 #include "wmo.h"
 #include "mpq_libmpq04.h"
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <fstream>
 #include <iostream>
@@ -192,7 +195,7 @@ bool ExtractSingleWmo(std::string& fname)
             strncpy(temp, fname.c_str(), 1024);
             temp[fname.length()-4] = 0;
 
-            WMOGroup fgroup(Trinity::StringFormat("%s_%03u.wmo", temp, i));
+            WMOGroup fgroup(Trinity::StringFormat("{}_{:03}.wmo", temp, i));
             if (!fgroup.open(&froot))
             {
                 printf("Could not open all Group file for: %s\n", plain_name);
@@ -371,7 +374,7 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     // now, scan for the patch levels in the core dir
     printf("Scanning patch levels from data directory.\n");
     // @tswow-begin
-    if (!scan_patches(Trinity::StringFormat("%spatch", input_path.c_str()).c_str(), pArchiveNames))
+    if (!scan_patches(Trinity::StringFormat("{}patch", input_path.c_str()).c_str(), pArchiveNames))
     // @tswow-end
         return(false);
 
@@ -382,9 +385,9 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     {
         printf("Locale: %s\n", locale.c_str());
         // @tswow-begin
-        if(scan_patches(Trinity::StringFormat("%s%s/patch-%s", input_path.c_str(), locale.c_str(), locale.c_str()).c_str(), pArchiveNames))
+        if(scan_patches(Trinity::StringFormat("{}/patch-{}", input_path.c_str(), locale.c_str(), locale.c_str()).c_str(), pArchiveNames))
         // @tswow-end
-            foundOne = true;
+        foundOne = true;
     }
 
     printf("\n");
@@ -440,6 +443,10 @@ inline bool ends_with(std::string const& value, std::string const& ending)
 
 int main(int argc, char ** argv)
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;

@@ -86,7 +86,7 @@ enum WorldTimers
 };
 
 /// Configuration elements
-enum WorldBoolConfigs
+enum WorldBoolConfigs : uint32
 {
     CONFIG_DURABILITY_LOSS_IN_PVP = 0,
     CONFIG_ADDON_CHANNEL,
@@ -184,7 +184,7 @@ enum WorldBoolConfigs
     BOOL_CONFIG_VALUE_COUNT
 };
 
-enum WorldFloatConfigs
+enum WorldFloatConfigs : uint32
 {
     CONFIG_GROUP_XP_DISTANCE = 0,
     CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE,
@@ -209,7 +209,7 @@ enum WorldFloatConfigs
     FLOAT_CONFIG_VALUE_COUNT
 };
 
-enum WorldIntConfigs
+enum WorldIntConfigs : uint32
 {
     CONFIG_COMPRESSION = 0,
     CONFIG_INTERVAL_SAVE,
@@ -658,8 +658,6 @@ class TC_GAME_API World
         void SendServerMessage(ServerMessageType messageID, std::string stringParam = "", Player* player = nullptr);
         void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
         void SendGlobalGMMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        bool SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);
-        void SendZoneText(uint32 zone, const char *text, WorldSession* self = nullptr, uint32 team = 0);
 
         /// Are we in the middle of a shutdown?
         bool IsShuttingDown() const { return m_ShutdownTimer > 0; }

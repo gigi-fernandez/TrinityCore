@@ -17,18 +17,21 @@
 
 #include "dbcfile.h"
 #include "Banner.h"
+#include "Locales.h"
 #include "mpq_libmpq04.h"
 #include "StringFormat.h"
+#include "Util.h"
 
 #include "adt.h"
 #include "wdt.h"
-#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
-#include <cstdio>
+#include <boost/filesystem/path.hpp>
 #include <deque>
 #include <fstream>
 #include <set>
 #include <unordered_map>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
@@ -175,7 +178,7 @@ void HandleArgs(int argc, char * arg[])
 uint32 ReadBuild(int locale)
 {
     // include build info file also
-    std::string filename = Trinity::StringFormat("component.wow-%s.txt", langs[locale]);
+    std::string filename = Trinity::StringFormat("component.wow-{}.txt", langs[locale]);
     //printf("Read %s file... ", filename.c_str());
 
     MPQFile m(filename.c_str());
@@ -948,7 +951,7 @@ void ExtractMapsFromMpq(uint32 build)
         printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
 
-        mpqMapName = Trinity::StringFormat("World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
+        mpqMapName = Trinity::StringFormat("World\\Maps\\{}\\{}.wdt", map_ids[z].name, map_ids[z].name);
         WDT_file wdt;
         if (!wdt.loadFile(mpqMapName, false))
         {
@@ -972,8 +975,8 @@ void ExtractMapsFromMpq(uint32 build)
                 }
                 // @tswow-end
 
-                mpqFileName = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                outputFileName = Trinity::StringFormat("%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
+                mpqFileName = Trinity::StringFormat("World\\Maps\\{}\\{}_{}_{}.adt", map_ids[z].name, map_ids[z].name, x, y);
+                outputFileName = Trinity::StringFormat("{}/maps/{:03}{:02}{:02}.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(mpqFileName, outputFileName, y, x, build);
             }
             // draw progress bar
@@ -1101,6 +1104,36 @@ void ExtractCameraFiles(int locale, bool basicLocale)
     printf("Extracted %u camera files\n", count);
 }
 
+void LoadLocaleMPQFiles(int const locale)
+{
+    std::string fileName = Trinity::StringFormat("{}/Data/{}/locale-{}.MPQ", input_path, langs[locale], langs[locale]);
+
+    new MPQArchive(fileName.c_str());
+
+    for(int i = 1; i < 5; ++i)
+    {
+        std::string ext;
+        if (i > 1)
+            ext = Trinity::StringFormat("-{}", i);
+
+        fileName = Trinity::StringFormat("{}/Data/{}/patch-{}{}.MPQ", input_path, langs[locale], langs[locale], ext);
+        if (boost::filesystem::exists(fileName))
+            new MPQArchive(fileName.c_str());
+    }
+}
+
+void LoadCommonMPQFiles()
+{
+    std::string fileName;
+    int count = sizeof(CONF_mpq_list)/sizeof(char*);
+    for(int i = 0; i < count; ++i)
+    {
+        fileName = Trinity::StringFormat("{}/Data/{}", input_path, CONF_mpq_list[i]);
+        if (boost::filesystem::exists(fileName))
+            new MPQArchive(fileName.c_str());
+    }
+}
+
 inline void CloseMPQFiles()
 {
     for(ArchiveSet::iterator j = gOpenArchives.begin(); j != gOpenArchives.end();++j) (*j)->close();
@@ -1109,6 +1142,10 @@ inline void CloseMPQFiles()
 
 int main(int argc, char * arg[])
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("Map & DBC Extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     HandleArgs(argc, arg);
@@ -1117,11 +1154,11 @@ int main(int argc, char * arg[])
     uint32 build = 0;
 
     // @tswow-begin
-    std::string data_path = Trinity::StringFormat("%s/Data",input_path);
+    std::string data_path = Trinity::StringFormat("{}/Data",input_path);
     // @tswow-end
     for (int i = 0; i < LANG_COUNT; i++)
     {
-        std::string filename = Trinity::StringFormat("%s/Data/%s/locale-%s.MPQ", input_path, langs[i], langs[i]);
+        std::string filename = Trinity::StringFormat("{}/Data/{}/locale-{}.MPQ", input_path, langs[i], langs[i]);
         if (boost::filesystem::exists(filename))
         {
             printf("Detected locale: %s\n", langs[i]);

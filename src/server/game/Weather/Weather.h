@@ -26,6 +26,7 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 
+class Map;
 class Player;
 
 #define WEATHER_SEASONS 4
@@ -66,16 +67,21 @@ class TC_GAME_API Weather
 {
     public:
 
-        Weather(uint32 zoneId, WeatherData const* weatherChances);
+        Weather(Map* map, uint32 zoneId, WeatherData const* weatherChances);
         ~Weather() { };
 
         bool Update(uint32 diff);
         bool ReGenerate();
-        bool UpdateWeather();
+        // @tswow-begin triggerScripts parameter
+        bool UpdateWeather(bool triggerScripts = true);
+        // @tswow-end
 
         void SendWeatherUpdateToPlayer(Player* player);
         static void SendFineWeatherUpdateToPlayer(Player* player);
-        void SetWeather(WeatherType type, float intensity);
+
+        // @tswow-begin triggerScripts parameter
+        void SetWeather(WeatherType type, float intensity, bool triggerScripts = true);
+        // @tswow-end
 
         /// For which zone is this weather?
         uint32 GetZone() const { return m_zone; };
@@ -84,10 +90,15 @@ class TC_GAME_API Weather
     private:
 
         WeatherState GetWeatherState() const;
+        Map* m_map;
         uint32 m_zone;
         WeatherType m_type;
         float m_intensity;
         IntervalTimer m_timer;
         WeatherData const* m_weatherChances;
+
+        // @tswow-begin
+        friend class TSWeather;
+        // @tswow-end
 };
 #endif

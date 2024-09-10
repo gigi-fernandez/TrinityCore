@@ -106,11 +106,17 @@ target_link_libraries(game
     # tswow-begin
     nlohmann_json::nlohmann_json
     liblua
-    sourcemaps
+    # sourcemaps
     TracyClient
     # tswow-end
     game-interface
     )
+
+if(TARGET efsw)
+  target_link_libraries(game
+    PRIVATE
+      efsw)
+endif()
 
 set_target_properties(game
     PROPERTIES
