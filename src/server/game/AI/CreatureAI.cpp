@@ -462,3 +462,57 @@ Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flight
     pos.m_positionZ += flightZ;
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }
+
+void CreatureAI::Encircle()
+{
+    Unit *target = me->GetVictim();
+
+    /** Check Movement Allowed. */
+    if (
+        !target ||
+        !me->IsFreeToMove() || me->HasUnitMovementFlag(MOVEMENTFLAG_ROOT) ||
+        me->IsUnderWater() ||
+        (target->GetTypeId() != TYPEID_PLAYER && !target->IsPet())
+    )
+    {
+        return;
+    }
+
+    /** Only 1 combatant, bail on encircling. */
+    if (target->getAttackers().size() == 1)
+        return;
+
+    /** Exclude when ranged. */
+    if (! me->IsWithinMeleeRange(target))
+        return;
+
+    /** Don't move main target. */
+    Unit *targetOfTarget = target->GetVictim();
+    if (targetOfTarget && me == targetOfTarget)
+        return;
+
+    me->GetMotionMaster()->MoveEncircle(target);
+}
+
+void CreatureAI::Backpedal()
+{
+    Unit *target = me->GetVictim();
+
+    /** Check Movement Allowed. */
+    if (
+        !target ||
+        !me->IsFreeToMove() || me->HasUnitMovementFlag(MOVEMENTFLAG_ROOT) ||
+        me->IsUnderWater() ||
+        (target->GetTypeId() != TYPEID_PLAYER && !target->IsPet())
+    )
+    {
+        return;
+    }
+
+    /** If we are too close we are going to reposition ourself. */
+    float MaxRange = me->GetCollisionRadius() + target->GetCollisionRadius();
+    if (! me->IsInDist(target, MaxRange))
+        return;
+
+    me->GetMotionMaster()->MoveBackpedal(target, me->GetMeleeRange(target) / 1.5);
+}

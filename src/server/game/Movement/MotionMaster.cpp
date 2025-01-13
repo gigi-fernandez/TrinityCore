@@ -25,6 +25,9 @@
 #include "G3DPosition.hpp"
 #include "Log.h"
 #include "Map.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
@@ -34,7 +37,6 @@
 #include "WaypointDefines.h"
 #include <algorithm>
 #include <iterator>
-
 #include "ChaseMovementGenerator.h"
 #include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
@@ -635,6 +637,96 @@ void MotionMaster::MoveConfused()
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveConfused: '{}', started confused movement.", _owner->GetGUID().ToString());
         Add(new ConfusedMovementGenerator<Creature>());
     }
+}
+
+void MotionMaster::MoveBackpedal(Unit* target, float dist)
+{
+    if (! target)
+        return;
+
+    Position const& pos = target->GetPosition();
+    float angle = target->GetAbsoluteAngle(_owner);
+    G3D::Vector3 point;
+    point.x = pos.m_positionX + dist * cosf(angle);
+    point.y = pos.m_positionY + dist * sinf(angle);
+    point.z = pos.m_positionZ;
+
+    if (!_owner->GetMap()->CanReachPositionAndGetValidCoords(_owner, point.x, point.y, point.z, true))
+    {
+        return;
+    }
+
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(point.x, point.y, point.z, false);
+    init.SetFacing(target);
+    init.SetWalk(true);
+
+    /** Beasts move backwards instead of turning around */
+    if (_owner->ToCreature() && _owner->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_BEAST)
+        init.SetOrientationFixed(true);
+
+    init.Launch();
+}
+
+const float fanningRadius = 1.f;
+const float fanAngleMin = float(M_PI) / 5;
+const float fanAngleMax = float(M_PI) / 4;
+
+void MotionMaster::MoveEncircle(Unit* target)
+{
+    if (! target)
+        return;
+
+    const bool instanced = (target->GetMap()->IsDungeon() || target->GetMap()->IsRaid());
+    const uint32 attackers = target->getAttackers().size();
+
+    /** Limit in dungeons. */
+    float radiusReduction = 1.0f;
+    float angleReduction = 1.0f;
+
+    if (instanced) {
+        radiusReduction = 3.0f;
+        angleReduction = 3.0f;
+    }
+
+    if (! instanced && target->getAttackers().size() > 10) {
+        radiusReduction = 2.0f;
+    }
+
+    /** Check for Collision.*/
+    Unit* collider = nullptr;
+    Trinity::AnyUnitFulfillingConditionInRangeCheck collisionCheck(_owner, [&](Unit* unit)->bool
+    {
+        return _owner != unit && unit->GetVictim() && unit->GetVictim() == target && !unit->isMoving() && !unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNINTERACTIBLE);
+    }, (fanningRadius / radiusReduction) * (fanningRadius / radiusReduction));
+    Trinity::UnitSearcher<Trinity::AnyUnitFulfillingConditionInRangeCheck> checker(_owner, collider, collisionCheck);
+    Cell::VisitAllObjects(_owner, checker, (fanningRadius / radiusReduction));
+
+    if (! collider) {
+        return;
+    }
+
+    /** Get Direction. */
+    int32 direction = irand(0, 1);
+    if (direction == 0) direction = -1;
+
+    /** Get Position. */
+    float ori = _owner->NormalizeOrientation(_owner->GetOrientation() + float(M_PI) + frand(fanAngleMin / angleReduction, fanAngleMax / angleReduction) * direction);
+    float x, y, z;
+    float targetDist = 0.05f;
+    target->GetNearPoint(_owner, x, y, z, targetDist, ori);
+
+    /** Validate. */
+    if (!_owner->GetMap()->CanReachPositionAndGetValidCoords(_owner, x, y, z, true))
+    {
+        return;
+    }
+
+    /** Execute Movement. */
+    Movement::MoveSplineInit init(_owner);
+    init.MoveTo(x, y, z, false, true);
+    init.SetWalk(true);
+    init.Launch();
 }
 
 void MotionMaster::MoveFleeing(Unit* enemy, uint32 time)
