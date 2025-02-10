@@ -894,7 +894,7 @@ void Creature::Update(uint32 diff)
                     if (diff >= m_encircleTime)
                     {
                         AI()->Encircle();
-                        m_encircleTime = urand(MOVE_CIRCLE_CHECK_INTERVAL, MOVE_CIRCLE_CHECK_INTERVAL * 2);
+                        m_encircleTime = MOVE_CIRCLE_CHECK_INTERVAL;
                     } else
                         m_encircleTime -= diff;
                 }

@@ -103,6 +103,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
                 m_ignoreCorpseDecayRatio = true;
         }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
+        uint32 GetRespawnAggroDelay() const { return m_respawnAggroDelay; }
+        void SetRespawnAggroDelay(uint32 delay) { m_respawnAggroDelay = delay; }
         bool IsRacialLeader() const { return GetCreatureTemplate()->RacialLeader; }
         bool IsCivilian() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN) != 0; }
         bool IsTrigger() const { return (GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER) != 0; }
@@ -366,8 +368,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
         bool IsFreeToMove();
-        static constexpr uint32 MOVE_CIRCLE_CHECK_INTERVAL = 3000;
-        static constexpr uint32 MOVE_BACKWARDS_CHECK_INTERVAL = 2000;
+        static constexpr uint32 MOVE_CIRCLE_CHECK_INTERVAL = 1500;
+        static constexpr uint32 MOVE_BACKWARDS_CHECK_INTERVAL = 1500;
 
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
@@ -411,6 +413,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t m_respawnTime;                               // (secs) time of next respawn
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
+        uint32 m_respawnAggroDelay;                         // (secs) delay between death and respawning
         bool m_ignoreCorpseDecayRatio;
         float m_wanderDistance;
         uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check

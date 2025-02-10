@@ -668,7 +668,7 @@ void MotionMaster::MoveBackpedal(Unit* target, float dist)
     init.Launch();
 }
 
-const float fanningRadius = 1.f;
+const float fanningRadius = 2.f;
 const float fanAngleMin = float(M_PI) / 5;
 const float fanAngleMax = float(M_PI) / 4;
 
